@@ -538,13 +538,6 @@
                     </li>
                 {% endif %}
                     
-                {% if 'search_history' in session.get('admin_permissions', []) %}
-                    <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.endpoint == 'admin_search_history' else '' }}" href="{{ url_for('admin.admin_search_history') }}">
-                            <i class="fas fa-history"></i> Search History
-                        </a>
-                    </li>
-                {% endif %}
             </ul>
 
             <div class="sidebar-heading">Finance</div>

@@ -18,6 +18,76 @@
     </div>
 <!-- Dashboard Content -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10 mb-12">
+    <!-- Subscription Status Card (NEW) -->
+    {% if has_subscription %}
+    <div class="glass backdrop-blur-lg bg-white/90 rounded-2xl shadow-xl p-6 mb-6 animate-fade-in">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 bg-secondary-100 rounded-full flex items-center justify-center text-secondary-700">
+                        <i class="fas fa-crown text-xl"></i>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900">{{ plan_name }} Subscription</h3>
+                    <p class="text-sm text-gray-600">Expires on {{ expires_on|date('%b %d, %Y') if expires_on else 'Unknown' }}</p>
+                </div>
+            </div>
+            <div class="mt-4 md:mt-0 flex flex-col space-y-3">
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-sm font-medium text-gray-700">QR Codes</span>
+                        <span class="text-xs text-gray-500">{{ qr_remaining }} remaining</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="bg-secondary-600 h-2.5 rounded-full" style="width: {{ qr_percent }}%"></div>
+                    </div>
+                </div>
+                
+                {% if analytics_remaining is defined %}
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-sm font-medium text-gray-700">Analytics</span>
+                        <span class="text-xs text-gray-500">{{ analytics_remaining }} remaining</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="bg-primary-600 h-2.5 rounded-full" style="width: {{ analytics_percent }}%"></div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="flex justify-between items-center mt-2">
+                    <span class="text-xs text-gray-500">{{ days_remaining }} days left</span>
+                    <a href="{{ url_for('subscription.user_subscriptions') }}" class="text-sm text-secondary-600 hover:text-secondary-800 font-medium">
+                        Manage Subscription
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="glass backdrop-blur-lg bg-white/90 rounded-2xl shadow-xl p-6 mb-6 animate-fade-in">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">
+                        <i class="fas fa-crown text-xl"></i>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900">No Active Subscription</h3>
+                    <p class="text-sm text-gray-600">Subscribe to unlock premium features</p>
+                </div>
+            </div>
+            <div class="mt-4 md:mt-0">
+                <a href="{{ url_for('subscription.user_subscriptions') }}" class="btn btn-gradient px-6 py-2">
+                    <i class="fas fa-crown mr-2"></i> Subscribe Now
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Dashboard Controls -->
     <div class="mb-6 glass backdrop-blur-lg bg-white/90 rounded-2xl shadow-xl p-6 animate-fade-in">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-3 md:space-y-0">
@@ -245,10 +315,19 @@
                 </div>
                 <h3 class="text-xl font-semibold text-gray-800 mb-2">No QR codes yet</h3>
                 <p class="text-gray-600 mb-6 max-w-md mx-auto">Get started by creating your first QR code. Choose from different types and customize the design.</p>
+                
+                <!-- Modified Create QR Button with subscription check -->
+                {% if has_subscription and qr_remaining > 0 %}
                 <a href="{{ url_for('create_qr') }}" class="gradient-bg text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 hover:shadow-glow inline-flex items-center gap-2">
                     <i class="fas fa-plus"></i>
                     Create QR Code
                 </a>
+                {% else %}
+                <a href="{{ url_for('subscription.user_subscriptions') }}" class="gradient-bg text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 hover:shadow-glow inline-flex items-center gap-2">
+                    <i class="fas fa-crown"></i>
+                    Subscribe to Create More QR Codes
+                </a>
+                {% endif %}
             </div>
         {% endif %}
     </div>

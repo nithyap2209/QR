@@ -77,7 +77,6 @@ def create_app():
     # Configure the app
     app.config['SECRET_KEY'] = 'your-secret-key'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:nithya@localhost:5432/qr_codes'
-    # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Devi%401234@localhost:5432/qr_codes'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['UPLOAD_FOLDER'] = 'static/uploads'
 

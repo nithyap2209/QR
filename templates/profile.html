@@ -94,12 +94,12 @@
                     <i class="fas fa-lock"></i>
                     <span>Security</span>
                 </button>
-                <!-- <button @click="activeTab = 'activity'"
+                <button @click="activeTab = 'activity'"
                         :class="activeTab === 'activity' ? 'gradient-bg text-white' : 'text-gray-700 hover:bg-gray-100'"
                         class="px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-2">
                     <i class="fas fa-history"></i>
                     <span>Activity</span>
-                </button> -->
+                </button>
             </nav>
         </div>
 
@@ -186,7 +186,7 @@
                                 <div class="flex justify-between items-start mb-4">
                                     <div>
                                         <h4 class="text-2xl font-bold text-gray-900">{{ subscription.subscription.plan }}</h4>
-                                        <p class="text-gray-600 mt-1">Current Plan</p>
+                                        <p class="text-gray-600 mt-1">{{ subscription.subscription.plan_type | capitalize }}</p>
                                     </div>
                                     {% if subscription.is_active %}
                                     <span class="glass rounded-full px-3 py-1 text-sm bg-secondary-50 text-secondary-700 flex items-center gap-1">
@@ -213,7 +213,52 @@
                                         <i class="fas fa-clock text-primary-600"></i>
                                         <span>{{ subscription.subscription.days }} days of service</span>
                                     </div>
+                                    {% if subscription.subscription.analytics > 0 %}
+                                    <div class="flex items-center gap-3">
+                                        <i class="fas fa-chart-bar text-primary-600"></i>
+                                        <span>{{ subscription.subscription.analytics }} analytics operations</span>
+                                    </div>
+                                    {% endif %}
+                                    {% if subscription.subscription.qr_count > 0 %}
+                                    <div class="flex items-center gap-3">
+                                        <i class="fas fa-qrcode text-primary-600"></i>
+                                        <span>{{ subscription.subscription.qr_count }} QR codes</span>
+                                    </div>
+                                    {% endif %}
                                 </div>
+                            </div>
+                            
+                            <!-- Auto-renewal Status -->
+                            <div class="glass rounded-xl p-6 bg-white/50 mb-6">
+                                <h5 class="font-semibold mb-4 flex items-center gap-2">
+                                    <i class="fas fa-sync-alt text-primary-600"></i>
+                                    Auto-Renewal
+                                </h5>
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-300">
+                                    <span class="text-gray-700">Auto-renew subscription</span>
+                                    <div class="flex items-center">
+                                        <div class="relative inline-block w-12 mr-2 align-middle select-none">
+                                            <input type="checkbox" id="autoRenew" 
+                                                class="sr-only peer"
+                                                {% if subscription.is_auto_renew %}checked{% endif %}
+                                                onchange="toggleAutoRenewal({{ subscription.id }}, {{ '1' if not subscription.is_auto_renew else '0' }})">
+                                            <label for="autoRenew" 
+                                                class="block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer peer-checked:bg-secondary-600 transition-all duration-300 after:content-[''] after:block after:h-5 after:w-5 after:rounded-full after:bg-white after:absolute after:top-0.5 after:left-0.5 after:transition-all peer-checked:after:translate-x-6"></label>
+                                        </div>
+                                        {% if subscription.is_auto_renew %}
+                                            <span class="glass rounded-full px-3 py-1 text-xs bg-secondary-50 text-secondary-700">Enabled</span>
+                                        {% else %}
+                                            <span class="glass rounded-full px-3 py-1 text-xs bg-gray-100 text-gray-700">Disabled</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-3">
+                                    {% if subscription.is_auto_renew %}
+                                    Your subscription will automatically renew on {{ subscription.end_date.strftime('%B %d, %Y') }}.
+                                    {% else %}
+                                    Your subscription will expire on {{ subscription.end_date.strftime('%B %d, %Y') }}.
+                                    {% endif %}
+                                </p>
                             </div>
                             
                             <!-- Plan Features -->
@@ -229,12 +274,22 @@
                                         </div>
                                         <span>Advanced QR customization</span>
                                     </li>
+                                    {% if subscription.subscription.analytics > 0 %}
                                     <li class="flex items-center gap-3">
                                         <div class="w-5 h-5 rounded-full bg-secondary-500 flex items-center justify-center">
                                             <i class="fas fa-check text-white text-xs"></i>
                                         </div>
-                                        <span>Analytics dashboard</span>
+                                        <span>Analytics dashboard ({{ subscription.subscription.analytics }} operations)</span>
                                     </li>
+                                    {% endif %}
+                                    {% if subscription.subscription.design %}
+                                    <li class="flex items-center gap-3">
+                                        <div class="w-5 h-5 rounded-full bg-secondary-500 flex items-center justify-center">
+                                            <i class="fas fa-check text-white text-xs"></i>
+                                        </div>
+                                        <span>{{ subscription.subscription.get_designs()|length }} premium {{ 'design' if subscription.subscription.get_designs()|length == 1 else 'designs' }}</span>
+                                    </li>
+                                    {% endif %}
                                     <li class="flex items-center gap-3">
                                         <div class="w-5 h-5 rounded-full bg-secondary-500 flex items-center justify-center">
                                             <i class="fas fa-check text-white text-xs"></i>
@@ -247,6 +302,56 @@
                                         </div>
                                         <span>No watermarks</span>
                                     </li>
+                                    {% if subscription.subscription.features %}
+                                        <!-- Display additional features -->
+                                        <div id="feature-container" style="display: none;">{{ subscription.subscription.features }}</div>
+                                        <script>
+                                            (function() {
+                                                try {
+                                                    const container = document.getElementById('feature-container');
+                                                    const featuresText = container.innerText || container.textContent;
+                                                    const features = JSON.parse(featuresText);
+                                                    
+                                                    let featureHTML = '';
+                                                    for (const key in features) {
+                                                        const value = features[key];
+                                                        const displayKey = key.replace(/[{}"_]/g, ' ').trim();
+                                                        
+                                                        featureHTML += `
+                                                        <li class="flex items-center gap-3">
+                                                            <div class="w-5 h-5 rounded-full bg-secondary-500 flex items-center justify-center">
+                                                                <i class="fas fa-check text-white text-xs"></i>
+                                                            </div>
+                                                            <span>${displayKey}: ${value}</span>
+                                                        </li>`;
+                                                    }
+                                                    
+                                                    container.insertAdjacentHTML('afterend', featureHTML);
+                                                } catch (e) {
+                                                    // If JSON parsing fails, display as comma-separated features
+                                                    const container = document.getElementById('feature-container');
+                                                    const featuresText = container.innerText || container.textContent;
+                                                    const features = featuresText.split(',');
+                                                    
+                                                    let featureHTML = '';
+                                                    features.forEach(feature => {
+                                                        const trimmedFeature = feature.trim();
+                                                        if (trimmedFeature) {
+                                                            featureHTML += `
+                                                            <li class="flex items-center gap-3">
+                                                                <div class="w-5 h-5 rounded-full bg-secondary-500 flex items-center justify-center">
+                                                                    <i class="fas fa-check text-white text-xs"></i>
+                                                                </div>
+                                                                <span>${trimmedFeature}</span>
+                                                            </li>`;
+                                                        }
+                                                    });
+                                                    
+                                                    container.insertAdjacentHTML('afterend', featureHTML);
+                                                }
+                                            })();
+                                        </script>
+                                    {% endif %}
                                 </ul>
                             </div>
                         </div>
@@ -273,22 +378,41 @@
                                     <p class="text-xs text-gray-500 mt-1 text-right">{{ days_percent|round|int }}% remaining</p>
                                 </div>
                                 
-                                <!-- Today's Usage -->
+                                <!-- Analytics Usage (if applicable) -->
+                                {% if subscription.subscription.analytics > 0 %}
                                 <div class="mb-6">
                                     <div class="flex justify-between mb-2">
-                                        <span class="text-sm font-medium text-gray-700">Today's Usage</span>
-                                        <span class="text-sm font-bold">{{ subscription.current_usage }} / {{ subscription.subscription.usage_per_day }}</span>
+                                        <span class="text-sm font-medium text-gray-700">Analytics Usage</span>
+                                        <span class="text-sm font-bold">{{ subscription.analytics_used or 0 }} / {{ subscription.subscription.analytics }}</span>
                                     </div>
-                                    {% set usage_percent = (subscription.current_usage / subscription.subscription.usage_per_day) * 100 %}
                                     <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                                         <div class="h-full rounded-full transition-all duration-500
-                                             {% if usage_percent < 70 %}bg-secondary-500
-                                             {% elif usage_percent < 90 %}bg-yellow-500
+                                             {% if subscription.analytics_percent < 70 %}bg-secondary-500
+                                             {% elif subscription.analytics_percent < 90 %}bg-yellow-500
                                              {% else %}bg-red-500{% endif %}"
-                                             style="width: {{ usage_percent }}%"></div>
+                                             style="width: {{ subscription.analytics_percent }}%"></div>
                                     </div>
-                                    <p class="text-xs text-gray-500 mt-1 text-right">{{ usage_percent|round|int }}% used</p>
+                                    <p class="text-xs text-gray-500 mt-1 text-right">{{ subscription.analytics_percent|round|int }}% used</p>
                                 </div>
+                                {% endif %}
+                                
+                                <!-- QR Codes Generated (if applicable) -->
+                                {% if subscription.subscription.qr_count > 0 %}
+                                <div class="mb-6">
+                                    <div class="flex justify-between mb-2">
+                                        <span class="text-sm font-medium text-gray-700">QR Codes Generated</span>
+                                        <span class="text-sm font-bold">{{ subscription.qr_generated or 0 }} / {{ subscription.subscription.qr_count }}</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                                        <div class="h-full rounded-full transition-all duration-500
+                                             {% if subscription.qr_percent < 70 %}bg-secondary-500
+                                             {% elif subscription.qr_percent < 90 %}bg-yellow-500
+                                             {% else %}bg-red-500{% endif %}"
+                                             style="width: {{ subscription.qr_percent }}%"></div>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1 text-right">{{ subscription.qr_percent|round|int }}% used</p>
+                                </div>
+                                {% endif %}
                                 
                                 <!-- Actions -->
                                 <div class="grid grid-cols-2 gap-4 mt-8">
@@ -297,11 +421,40 @@
                                         <i class="fas fa-sync-alt"></i>
                                         <span>Manage Plan</span>
                                     </a>
-                                    <button type="button" 
-                                            class="glass backdrop-blur-md bg-white/50 border border-red-500 text-red-500 hover:bg-red-500/10 font-medium py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center gap-2">
+                                    
+                                    {% if subscription.is_active %}
+                                    <a href="{{ url_for('subscription.subscription_details', subscription_id=subscription.id) }}"
+                                       class="glass backdrop-blur-md bg-white/50 border border-primary-500 text-primary-500 hover:bg-primary-500/10 font-medium py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center gap-2">
                                         <i class="fas fa-chart-pie"></i>
                                         <span>View Usage</span>
+                                    </a>
+                                    {% else %}
+                                    <button type="button" 
+                                            onclick="window.location.href='{{ url_for('subscription.user_subscriptions') }}#available-plans'"
+                                            class="glass backdrop-blur-md bg-white/50 border border-secondary-500 text-secondary-500 hover:bg-secondary-500/10 font-medium py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center gap-2">
+                                        <i class="fas fa-tag"></i>
+                                        <span>Browse Plans</span>
                                     </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Recent Usage Activity -->
+                            <div class="glass rounded-xl p-6 bg-white/50 mt-6">
+                                <h5 class="font-semibold mb-4 flex items-center gap-2">
+                                    <i class="fas fa-history text-primary-600"></i>
+                                    Recent Usage Activity
+                                </h5>
+                                
+                                <div class="space-y-3">
+                                    <!-- Usage is fetched from UsageLog in subscription_details route -->
+                                    <a href="{{ url_for('subscription.subscription_details', subscription_id=subscription.id) }}" 
+                                       class="block p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors duration-200">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-700">View detailed usage history</span>
+                                            <i class="fas fa-chevron-right text-gray-400"></i>
+                                        </div>
+                                    </a>
                                 </div>
                             </div>
                         </div>

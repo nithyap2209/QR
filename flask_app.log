@@ -9556,3 +9556,117 @@ WHERE subscribed_users."U_ID" = %(U_ID_1)s AND subscribed_users.end_date > %(end
 2025-05-23 15:41:55,740 - INFO - 127.0.0.1 - - [23/May/2025 15:41:55] "[32mPOST /login HTTP/1.1[0m" 302 -
 2025-05-23 15:41:55,752 - INFO - 127.0.0.1 - - [23/May/2025 15:41:55] "GET /dashboard HTTP/1.1" 200 -
 2025-05-23 15:41:56,032 - INFO - 127.0.0.1 - - [23/May/2025 15:41:56] "POST /set_timezone HTTP/1.1" 200 -
+2025-05-23 16:26:28,625 - INFO - Flask app started successfully
+2025-05-23 16:26:28,945 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-05-23 16:26:28,945 - INFO - [33mPress CTRL+C to quit[0m
+2025-05-23 16:26:28,948 - INFO -  * Restarting with stat
+2025-05-23 16:26:30,945 - INFO - Flask app started successfully
+2025-05-23 16:26:31,042 - WARNING -  * Debugger is active!
+2025-05-23 16:26:31,046 - INFO -  * Debugger PIN: 142-205-844
+2025-05-23 16:28:04,826 - INFO - Flask app started successfully
+2025-05-23 16:28:05,117 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-05-23 16:28:05,117 - INFO - [33mPress CTRL+C to quit[0m
+2025-05-23 16:28:05,127 - INFO -  * Restarting with stat
+2025-05-23 16:28:06,970 - INFO - Flask app started successfully
+2025-05-23 16:28:07,066 - WARNING -  * Debugger is active!
+2025-05-23 16:28:07,070 - INFO -  * Debugger PIN: 142-205-844
+2025-05-23 16:28:10,877 - INFO - 127.0.0.1 - - [23/May/2025 16:28:10] "[35m[1mGET /user/analytics HTTP/1.1[0m" 500 -
+2025-05-23 16:28:11,093 - INFO - 127.0.0.1 - - [23/May/2025 16:28:11] "GET /user/analytics?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2025-05-23 16:28:11,161 - INFO - 127.0.0.1 - - [23/May/2025 16:28:11] "GET /user/analytics?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2025-05-23 16:28:11,637 - INFO - 127.0.0.1 - - [23/May/2025 16:28:11] "GET /user/analytics?__debugger__=yes&cmd=resource&f=console.png&s=gZ1iq7Dxrutiio4kbY8q HTTP/1.1" 200 -
+2025-05-23 16:28:11,867 - INFO - 127.0.0.1 - - [23/May/2025 16:28:11] "GET /user/analytics?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2025-05-23 16:28:18,407 - INFO - 127.0.0.1 - - [23/May/2025 16:28:18] "[35m[1mGET /user/analytics HTTP/1.1[0m" 500 -
+2025-05-23 16:28:18,429 - INFO - 127.0.0.1 - - [23/May/2025 16:28:18] "[36mGET /user/analytics?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-05-23 16:28:18,653 - INFO - 127.0.0.1 - - [23/May/2025 16:28:18] "[36mGET /user/analytics?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-05-23 16:28:18,974 - INFO - 127.0.0.1 - - [23/May/2025 16:28:18] "[36mGET /user/analytics?__debugger__=yes&cmd=resource&f=console.png&s=gZ1iq7Dxrutiio4kbY8q HTTP/1.1[0m" 304 -
+2025-05-23 16:28:19,233 - INFO - 127.0.0.1 - - [23/May/2025 16:28:19] "[36mGET /user/analytics?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-05-23 16:28:33,718 - INFO - 127.0.0.1 - - [23/May/2025 16:28:33] "GET / HTTP/1.1" 200 -
+2025-05-23 16:28:34,800 - INFO - 127.0.0.1 - - [23/May/2025 16:28:34] "POST /set_timezone HTTP/1.1" 200 -
+2025-05-23 16:28:37,046 - INFO - 127.0.0.1 - - [23/May/2025 16:28:37] "GET /login HTTP/1.1" 200 -
+2025-05-23 16:28:37,351 - INFO - 127.0.0.1 - - [23/May/2025 16:28:37] "POST /set_timezone HTTP/1.1" 200 -
+2025-05-23 16:28:39,835 - INFO - 127.0.0.1 - - [23/May/2025 16:28:39] "GET /signup HTTP/1.1" 200 -
+2025-05-23 16:28:40,080 - INFO - 127.0.0.1 - - [23/May/2025 16:28:40] "POST /set_timezone HTTP/1.1" 200 -
+2025-05-23 16:29:03,334 - INFO - 127.0.0.1 - - [23/May/2025 16:29:03] "[32mPOST /signup HTTP/1.1[0m" 302 -
+2025-05-23 16:29:03,795 - INFO - 127.0.0.1 - - [23/May/2025 16:29:03] "GET /verify_account HTTP/1.1" 200 -
+2025-05-23 16:29:04,090 - INFO - 127.0.0.1 - - [23/May/2025 16:29:04] "POST /set_timezone HTTP/1.1" 200 -
+2025-05-23 16:29:09,190 - INFO - 127.0.0.1 - - [23/May/2025 16:29:09] "GET / HTTP/1.1" 200 -
+2025-05-23 16:29:09,796 - INFO - 127.0.0.1 - - [23/May/2025 16:29:09] "POST /set_timezone HTTP/1.1" 200 -
+2025-05-23 16:29:11,072 - INFO - 127.0.0.1 - - [23/May/2025 16:29:11] "GET /dashboard HTTP/1.1" 200 -
+2025-05-23 16:29:11,372 - INFO - 127.0.0.1 - - [23/May/2025 16:29:11] "POST /set_timezone HTTP/1.1" 200 -
+2025-05-23 16:29:15,735 - INFO - 127.0.0.1 - - [23/May/2025 16:29:15] "[32mGET /create HTTP/1.1[0m" 302 -
+2025-05-23 16:29:15,960 - INFO - 127.0.0.1 - - [23/May/2025 16:29:15] "GET /subscription/ HTTP/1.1" 200 -
+2025-05-23 16:29:16,330 - INFO - 127.0.0.1 - - [23/May/2025 16:29:16] "POST /set_timezone HTTP/1.1" 200 -
+2025-05-23 16:29:18,735 - INFO - 127.0.0.1 - - [23/May/2025 16:29:18] "GET /user/analytics HTTP/1.1" 200 -
+2025-05-23 16:29:18,928 - INFO - 127.0.0.1 - - [23/May/2025 16:29:18] "POST /set_timezone HTTP/1.1" 200 -
+2025-05-23 16:29:22,590 - INFO - 127.0.0.1 - - [23/May/2025 16:29:22] "GET /dashboard HTTP/1.1" 200 -
+2025-05-23 16:29:22,966 - INFO - 127.0.0.1 - - [23/May/2025 16:29:22] "POST /set_timezone HTTP/1.1" 200 -
+2025-05-23 16:29:25,150 - INFO - 127.0.0.1 - - [23/May/2025 16:29:25] "GET /subscription/ HTTP/1.1" 200 -
+2025-05-23 16:29:25,506 - INFO - 127.0.0.1 - - [23/May/2025 16:29:25] "POST /set_timezone HTTP/1.1" 200 -
+2025-05-23 16:29:27,395 - INFO - 127.0.0.1 - - [23/May/2025 16:29:27] "GET /profile HTTP/1.1" 200 -
+2025-05-23 16:29:27,739 - INFO - 127.0.0.1 - - [23/May/2025 16:29:27] "POST /set_timezone HTTP/1.1" 200 -
+2025-05-23 16:29:38,729 - INFO - 127.0.0.1 - - [23/May/2025 16:29:38] "GET / HTTP/1.1" 200 -
+2025-05-23 16:29:39,463 - INFO - 127.0.0.1 - - [23/May/2025 16:29:39] "POST /set_timezone HTTP/1.1" 200 -
+2025-05-23 16:29:41,459 - INFO - 127.0.0.1 - - [23/May/2025 16:29:41] "[32mGET /admin/ HTTP/1.1[0m" 302 -
+2025-05-23 16:29:41,730 - INFO - 127.0.0.1 - - [23/May/2025 16:29:41] "GET /admin/login HTTP/1.1" 200 -
+2025-05-23 16:29:41,955 - INFO - 127.0.0.1 - - [23/May/2025 16:29:41] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-05-23 16:29:50,467 - INFO - 127.0.0.1 - - [23/May/2025 16:29:50] "POST /admin/login HTTP/1.1" 200 -
+2025-05-23 16:31:16,872 - INFO -  * Detected change in 'D:\\Downloads\\QR\\QR\\models\\admin.py', reloading
+2025-05-23 16:31:17,199 - INFO -  * Restarting with stat
+2025-05-23 16:31:19,681 - INFO - Flask app started successfully
+2025-05-23 16:31:19,935 - WARNING -  * Debugger is active!
+2025-05-23 16:31:19,938 - INFO -  * Debugger PIN: 142-205-844
+2025-05-23 16:31:27,069 - INFO - 127.0.0.1 - - [23/May/2025 16:31:27] "POST /admin/login HTTP/1.1" 200 -
+2025-05-23 16:31:35,250 - INFO - 127.0.0.1 - - [23/May/2025 16:31:35] "POST /admin/login HTTP/1.1" 200 -
+2025-05-23 16:31:51,727 - INFO -  * Detected change in 'D:\\Downloads\\QR\\QR\\models\\admin.py', reloading
+2025-05-23 16:31:51,967 - INFO -  * Restarting with stat
+2025-05-23 16:31:53,852 - INFO - Flask app started successfully
+2025-05-23 16:31:54,075 - WARNING -  * Debugger is active!
+2025-05-23 16:31:54,078 - INFO -  * Debugger PIN: 142-205-844
+2025-05-23 16:32:01,618 - INFO - 127.0.0.1 - - [23/May/2025 16:32:01] "POST /admin/login HTTP/1.1" 200 -
+2025-05-23 16:32:12,099 - INFO - Flask app started successfully
+2025-05-23 16:32:12,200 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-05-23 16:32:12,200 - INFO - [33mPress CTRL+C to quit[0m
+2025-05-23 16:32:12,202 - INFO -  * Restarting with stat
+2025-05-23 16:32:13,952 - INFO - Flask app started successfully
+2025-05-23 16:32:14,044 - WARNING -  * Debugger is active!
+2025-05-23 16:32:14,047 - INFO -  * Debugger PIN: 142-205-844
+2025-05-23 16:32:39,182 - INFO -  * Detected change in 'D:\\Downloads\\QR\\QR\\models\\admin.py', reloading
+2025-05-23 16:32:39,406 - INFO -  * Restarting with stat
+2025-05-23 16:32:41,294 - INFO - Flask app started successfully
+2025-05-23 16:32:41,384 - WARNING -  * Debugger is active!
+2025-05-23 16:32:41,387 - INFO -  * Debugger PIN: 142-205-844
+2025-05-23 16:32:44,006 - INFO - 127.0.0.1 - - [23/May/2025 16:32:44] "GET /dashboard HTTP/1.1" 200 -
+2025-05-23 16:32:44,740 - INFO - 127.0.0.1 - - [23/May/2025 16:32:44] "POST /set_timezone HTTP/1.1" 200 -
+2025-05-23 16:32:51,667 - INFO - 127.0.0.1 - - [23/May/2025 16:32:51] "[32mGET /admin/ HTTP/1.1[0m" 302 -
+2025-05-23 16:32:51,679 - INFO - 127.0.0.1 - - [23/May/2025 16:32:51] "GET /admin/login HTTP/1.1" 200 -
+2025-05-23 16:33:00,807 - INFO - 127.0.0.1 - - [23/May/2025 16:33:00] "POST /admin/login HTTP/1.1" 200 -
+2025-05-23 16:34:42,115 - INFO - 127.0.0.1 - - [23/May/2025 16:34:42] "[32mGET /admin/ HTTP/1.1[0m" 302 -
+2025-05-23 16:34:42,123 - INFO - 127.0.0.1 - - [23/May/2025 16:34:42] "GET /admin/login HTTP/1.1" 200 -
+2025-05-23 16:34:55,869 - INFO - 127.0.0.1 - - [23/May/2025 16:34:55] "POST /admin/login HTTP/1.1" 200 -
+2025-05-23 16:37:34,823 - INFO - Flask app started successfully
+2025-05-23 16:37:35,084 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-05-23 16:37:35,084 - INFO - [33mPress CTRL+C to quit[0m
+2025-05-23 16:37:35,087 - INFO -  * Restarting with stat
+2025-05-23 16:37:36,915 - INFO - Flask app started successfully
+2025-05-23 16:37:36,998 - WARNING -  * Debugger is active!
+2025-05-23 16:37:37,002 - INFO -  * Debugger PIN: 142-205-844
+2025-05-23 16:38:04,246 - INFO - 127.0.0.1 - - [23/May/2025 16:38:04] "[32mPOST /admin/login HTTP/1.1[0m" 302 -
+2025-05-23 16:38:04,394 - INFO - Dashboard data prepared successfully
+2025-05-23 16:38:04,394 - DEBUG - Popular plans: []
+2025-05-23 16:38:04,395 - DEBUG - Payment types: []
+2025-05-23 16:38:04,395 - DEBUG - Subscription actions: []
+2025-05-23 16:38:04,395 - DEBUG - Auto renewal: 0, Manual: 0
+2025-05-23 16:38:04,438 - INFO - 127.0.0.1 - - [23/May/2025 16:38:04] "GET /admin/ HTTP/1.1" 200 -
+2025-05-23 16:38:19,190 - INFO - 127.0.0.1 - - [23/May/2025 16:38:19] "GET /admin/roles HTTP/1.1" 200 -
+2025-05-23 16:38:21,734 - INFO - 127.0.0.1 - - [23/May/2025 16:38:21] "GET /admin/subscriptions HTTP/1.1" 200 -
+2025-05-23 16:38:24,728 - INFO - 127.0.0.1 - - [23/May/2025 16:38:24] "GET /admin/subscribed-users HTTP/1.1" 200 -
+2025-05-23 16:38:27,494 - DEBUG - User subscriptions: {}
+2025-05-23 16:38:27,511 - INFO - 127.0.0.1 - - [23/May/2025 16:38:27] "GET /admin/users HTTP/1.1" 200 -
+2025-05-23 16:38:31,209 - INFO - 127.0.0.1 - - [23/May/2025 16:38:31] "GET /admin/users/1 HTTP/1.1" 200 -
+2025-05-23 16:38:37,434 - DEBUG - User subscriptions: {}
+2025-05-23 16:38:37,436 - INFO - 127.0.0.1 - - [23/May/2025 16:38:37] "GET /admin/users HTTP/1.1" 200 -
+2025-05-23 16:38:39,025 - INFO - 127.0.0.1 - - [23/May/2025 16:38:39] "GET /admin/payments HTTP/1.1" 200 -

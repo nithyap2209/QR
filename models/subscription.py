@@ -42,7 +42,6 @@ class Subscription(db.Model):
     plan = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
     days = db.Column(db.Integer, nullable=False)
-    usage_per_day = db.Column(db.Integer, nullable=False)  # Keep for backward compatibility
     tier = db.Column(db.Integer, nullable=False)
     features = db.Column(db.Text, nullable=True)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
@@ -96,7 +95,6 @@ class SubscribedUser(db.Model):
     # New columns for tracking usage
     analytics_used = db.Column(db.Integer, default=0)
     qr_generated = db.Column(db.Integer, default=0)
-    last_reminder_sent = db.Column(db.DateTime, nullable=True)
 
     user = db.relationship('User', backref=db.backref('subscriptions', lazy=True))
     subscription = db.relationship('Subscription', backref=db.backref('subscribers', lazy=True))
@@ -642,6 +640,7 @@ def generate_invoice_pdf(payment):
     from reportlab.lib import colors
     from reportlab.lib.units import inch, mm
     from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_CENTER
+    from num2words import num2words
 
     # Define brand colors to match the logo
     brand_color = colors.Color(0.73, 0.20, 0.04)  # Rust/orange color from logo
@@ -653,31 +652,29 @@ def generate_invoice_pdf(payment):
     doc = SimpleDocTemplate(
         buffer, 
         pagesize=A4, 
-        leftMargin=15*mm, 
-        rightMargin=15*mm, 
-        topMargin=15*mm, 
-        bottomMargin=15*mm
+        leftMargin=12*mm, 
+        rightMargin=12*mm, 
+        topMargin=12*mm, 
+        bottomMargin=12*mm
     )
     width, height = A4
     
-    # Create styles - use new style names to avoid conflict
-    styles = getSampleStyleSheet()
-    
-    # Create custom styles without adding to stylesheet
+    # Create custom styles
     brand_title_style = ParagraphStyle(
         name='BrandTitleCustom',
         fontName='Helvetica-Bold',
-        fontSize=20,
+        fontSize=16,
         textColor=brand_color,
-        spaceAfter=3
+        spaceAfter=3,
+        alignment=TA_CENTER
     )
     
     company_name_style = ParagraphStyle(
         name='CompanyNameCustom',
         fontName='Helvetica-Bold',
-        fontSize=14,
-        textColor=brand_color,
-        spaceAfter=3
+        fontSize=12,
+        textColor=text_color,
+        spaceAfter=2
     )
     
     invoice_title_style = ParagraphStyle(
@@ -686,23 +683,23 @@ def generate_invoice_pdf(payment):
         fontSize=16,
         alignment=TA_RIGHT,
         textColor=brand_color,
-        spaceAfter=6
+        spaceAfter=4
     )
     
     section_title_style = ParagraphStyle(
         name='SectionTitleCustom',
         fontName='Helvetica-Bold',
-        fontSize=10,
-        textColor=brand_color,
-        spaceAfter=3
+        fontSize=9,
+        textColor=text_color,
+        spaceAfter=2
     )
     
     normal_style = ParagraphStyle(
         name='NormalCustom',
         fontName='Helvetica',
-        fontSize=9,
+        fontSize=8,
         textColor=text_color,
-        leading=12
+        leading=10
     )
     
     right_aligned_style = ParagraphStyle(
@@ -713,222 +710,240 @@ def generate_invoice_pdf(payment):
         textColor=text_color
     )
     
-    address_style = ParagraphStyle(
-        name='AddressStyleCustom',
+    center_aligned_style = ParagraphStyle(
+        name='CenterAlignedCustom',
         fontName='Helvetica',
         fontSize=9,
-        textColor=text_color,
-        leading=12
+        alignment=TA_CENTER,
+        textColor=text_color
     )
 
     # Prepare elements
     elements = []
-      # Top Header with Logo and Invoice Title
-    # Try different possible logo paths
-    possible_paths = [
-        os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'assert', '4d-logo.png'),
-        os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'assert', '4d-logo.jpg'),
-        os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'assert', '4d-logo.webp'),
-        os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'images', '4d-logo.png'),
-        os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'images', '4d-logo.jpg'),
-    ]
     
-    logo = None
-    for path in possible_paths:
-        if os.path.exists(path):
-            try:
-                logo = Image(path, width=1.7*inch, height=0.85*inch)
-                break
-            except:
-                continue
+    # Logo and Title side by side
+    logo_path = os.path.join('assert', '4d-logo.webp')
     
-    if logo is None:
-        # Fallback if no image found or loaded
-        logo = Paragraph("Fourth Dimension", brand_title_style)
-    
-    # Header with logo on left and invoice title on right
-    header_data = [
-        [
-            logo,
+    try:
+        logo = Image(logo_path, width=1.5*inch, height=0.75*inch)
+        header_data = [[
+            logo, 
             Paragraph("TAX INVOICE", invoice_title_style)
-        ]
-    ]
+        ]]
+        
+        header_table = Table(header_data, colWidths=[doc.width/2, doc.width/2])
+        header_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (0, 0), 'LEFT'),
+            ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ]))
+        elements.append(header_table)
+    except:
+        # Fallback if logo not found
+        elements.append(Paragraph("TAX INVOICE", invoice_title_style))
     
-    header_table = Table(header_data, colWidths=[doc.width/2, doc.width/2])
-    header_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('ALIGN', (0, 0), (0, 0), 'LEFT'),
-        ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
-    ]))
-    elements.append(header_table)
-    
-    # Add colored separator line
     elements.append(Spacer(1, 5))
-    separator = Table([['']], colWidths=[doc.width], rowHeights=[2])
-    separator.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), brand_color),
-    ]))
-    elements.append(separator)
-    elements.append(Spacer(1, 10))
     
-    # Company and Invoice Details section
-    # Left: Company Details, Right: Invoice Details
-    company_details = Table([
-        [Paragraph("Fourth Dimension Media Solutions", company_name_style)],
-        [Paragraph("24, Gopathi Narayanaswami Chetty Rd", address_style)],
-        [Paragraph("Lakshimi Colony, T. Nagar", address_style)],
-        [Paragraph("Chennai, Tamil Nadu-600017", address_style)],
-        [Paragraph("GST: 783y823rh932h9 | PAN: 638uhio3iu3", address_style)]
-    ])
-    
-    invoice_details = Table([
-        [Paragraph("<b>Invoice Number:</b>", normal_style), 
-         Paragraph(f"{payment.invoice_number}", right_aligned_style)],
-        [Paragraph("<b>Invoice Date:</b>", normal_style), 
-         Paragraph(f"{payment.invoice_date.strftime('%B %d, %Y')}", right_aligned_style)],
-        [Paragraph("<b>Due Date:</b>", normal_style), 
-         Paragraph(f"{payment.invoice_date.strftime('%B %d, %Y')}", right_aligned_style)],
-        [Paragraph("<b>Status:</b>", normal_style), 
-         Paragraph(f"{payment.status}", right_aligned_style)]
-    ])
-    
-    details_row = [
-        [company_details, invoice_details]
+    # Company Details Section
+    company_details = [
+        [Paragraph("<b>Company Name:</b>", section_title_style)],
+        [Paragraph("M/s. Fourth Dimension Media Solutions Pvt Ltd", normal_style)],
+        [Paragraph("State & Code: Tamil Nadu (33)", normal_style)],
+        [Paragraph("GSTIN: 33AABCF6993P1ZY", normal_style)],
+        [Paragraph("PAN: AABCF6993P", normal_style)],
+        [Paragraph("CIN: U22130TN2011PTC079276", normal_style)]
     ]
     
-    details_table = Table(details_row, colWidths=[doc.width/2, doc.width/2])
-    details_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('ALIGN', (0, 0), (0, 0), 'LEFT'),
-        ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 15)
+    company_table = Table(company_details, colWidths=[doc.width])
+    company_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 1)
     ]))
-    elements.append(details_table)
+    elements.append(company_table)
+    elements.append(Spacer(1, 5))
     
-    # Bill To Section
+    # Bill To and Invoice Details Section (two columns)
+    # Get customer details from payment object
     if payment.invoice_address:
         addr = payment.invoice_address
-        customer_info = [
-            [Paragraph("<b>BILL TO:</b>", section_title_style)],
-            [Paragraph(f"{addr.full_name}", normal_style)],
-            [Paragraph(f"{addr.company_name or ''}", normal_style)],
+        bill_to_content = [
+            [Paragraph("<b>Bill To,</b>", section_title_style)],
+            [Paragraph(f"M/s. {addr.company_name or addr.full_name}", normal_style)],
             [Paragraph(f"{addr.street_address}", normal_style)],
-            [Paragraph(f"{addr.city}, {addr.state} {addr.postal_code}", normal_style)],
-            [Paragraph(f"GST: {addr.gst_number or 'N/A'}", normal_style)]
+            [Paragraph(f"{addr.city} - {addr.postal_code}", normal_style)],
+            [Paragraph(f"{addr.state}, India", normal_style)],
+            [Paragraph(f"GST No. {addr.gst_number or 'N/A'}", normal_style)],
+            [Paragraph(f"PAN No. {addr.pan_number or 'N/A'}", normal_style)]
         ]
     else:
         user = payment.user
-        customer_info = [
-            [Paragraph("<b>BILL TO:</b>", section_title_style)],
-            [Paragraph(f"{user.name}", normal_style)],
+        bill_to_content = [
+            [Paragraph("<b>Bill To,</b>", section_title_style)],
+            [Paragraph(f"M/s. {user.name}", normal_style)],
             [Paragraph(f"Email: {user.company_email}", normal_style)]
         ]
     
-    customer_table = Table(customer_info)
-    customer_table.setStyle(TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+    # Invoice details
+    invoice_details_content = [
+        [Paragraph(f"<b>Invoice No:</b> {payment.invoice_number}", normal_style)],
+        [Paragraph(f"<b>Date:</b> {payment.invoice_date.strftime('%d/%m/%Y')}", normal_style)],
+        [Spacer(1, 5)],
+        [Paragraph(f"<b>Reverse Charge (Yes/No):</b> No", normal_style)],
+        [Paragraph(f"<b>Place of supply:</b> Tamil Nadu (33)", normal_style)]
+    ]
+    
+    # Create two-column layout for bill to and invoice details
+    bill_invoice_data = [[
+        Table(bill_to_content),
+        Table(invoice_details_content)
+    ]]
+    
+    bill_invoice_table = Table(bill_invoice_data, colWidths=[doc.width*0.6, doc.width*0.4])
+    bill_invoice_table.setStyle(TableStyle([
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 3)
+        ('ALIGN', (0, 0), (0, 0), 'LEFT'),
+        ('ALIGN', (1, 0), (1, 0), 'LEFT')
     ]))
-    elements.append(customer_table)
-    elements.append(Spacer(1, 15))
+    elements.append(bill_invoice_table)
+    elements.append(Spacer(1, 8))
     
-    # Invoice Items Table with modern styling
-    table_header = ["Description", "Quantity", "Unit Price", "Total"]
-    table_data = [table_header]
+    # Service Details Table
+    # Table headers
+    headers = ['Sl No', 'Description of Service', 'SAC/HSN', 'Qty', 'Rate', 'Amount (Rs)']
     
-    # Add subscription item
+    # Calculate amounts
+    base_amount = payment.base_amount
+    cgst_rate = payment.gst_rate / 2
+    sgst_rate = payment.gst_rate / 2
+    cgst_amount = payment.gst_amount / 2
+    sgst_amount = payment.gst_amount / 2
+    total_amount = payment.total_amount
+    
+    # Build table data
+    table_data = []
+    table_data.append(headers)
+    
+    # Service row
     table_data.append([
-        f"Subscription: {payment.subscription.plan}", 
-        "1", 
-        f"₹{payment.base_amount:.2f}", 
-        f"₹{payment.base_amount:.2f}"
+        '1.',
+        f'Digital Service - {payment.subscription.plan}',
+        '998314',
+        '1',
+        f'{base_amount:.2f}',
+        f'{base_amount:.2f}'
     ])
     
-    # Add GST line
-    table_data.append([
-        "GST", 
-        "", 
-        f"{payment.gst_rate * 100:.0f}%", 
-        f"₹{payment.gst_amount:.2f}"
-    ])
+    # Totals
+    table_data.append(['', '', '', '', 'Total', f'{base_amount:.2f}'])
+    table_data.append(['', '', '', '', f'CGST @ {cgst_rate*100:.0f}%', f'{cgst_amount:.2f}'])
+    table_data.append(['', '', '', '', f'SGST @ {sgst_rate*100:.0f}%', f'{sgst_amount:.2f}'])
     
-    # Table styling
-    col_widths = [doc.width*0.5, doc.width*0.15, doc.width*0.15, doc.width*0.2]
-    items_table = Table(table_data, colWidths=col_widths)
+    # Create service table
+    col_widths = [doc.width*0.08, doc.width*0.35, doc.width*0.12, doc.width*0.08, doc.width*0.17, doc.width*0.2]
+    service_table = Table(table_data, colWidths=col_widths)
     
-    # Define table styles for a more modern look
-    table_style = TableStyle([
-        # Header row styling
+    service_table.setStyle(TableStyle([
+        # Header row
         ('BACKGROUND', (0, 0), (-1, 0), brand_color),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ('ALIGN', (0, 0), (-1, 0), 'LEFT'),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-        ('TOPPADDING', (0, 0), (-1, 0), 8),
+        ('FONTSIZE', (0, 0), (-1, 0), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 4),
+        ('TOPPADDING', (0, 0), (-1, 0), 4),
+        
         # Data rows
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-        ('TEXTCOLOR', (0, 1), (-1, -1), text_color),
-        ('ALIGN', (0, 1), (0, -1), 'LEFT'),  # Description column left aligned
-        ('ALIGN', (1, 1), (-1, -1), 'RIGHT'),  # All other columns right aligned
-        # Borders - minimal modern look with only horizontal lines
-        ('LINEBELOW', (0, 0), (-1, -2), 0.5, colors.lightgrey),
-        ('TOPPADDING', (0, 1), (-1, -1), 6),
-        ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
-    ])
-    items_table.setStyle(table_style)
-    elements.append(items_table)
+        ('ALIGN', (0, 1), (0, -1), 'CENTER'),  # Sl No
+        ('ALIGN', (1, 1), (1, -1), 'LEFT'),    # Description
+        ('ALIGN', (2, 1), (2, -1), 'CENTER'),  # SAC/HSN
+        ('ALIGN', (3, 1), (3, -1), 'CENTER'),  # Qty
+        ('ALIGN', (4, 1), (4, -1), 'RIGHT'),   # Rate
+        ('ALIGN', (5, 1), (5, -1), 'RIGHT'),   # Amount
+        
+        # Borders
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('TOPPADDING', (0, 1), (-1, -1), 3),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 3),
+        ('FONTSIZE', (0, 1), (-1, -1), 8),
+        
+        # Total rows have special formatting
+        ('FONTNAME', (4, 2), (5, -1), 'Helvetica-Bold'),
+    ]))
     
-    # Total row separated from the main table for emphasis
-    total_data = [
-        ["", "", "Total Amount:", f"₹{payment.total_amount:.2f}"]
+    elements.append(service_table)
+    
+    # Total Invoice Value
+    total_table_data = [
+        ['Total Invoice Value', f'{total_amount:.2f}']
     ]
-    total_table = Table(total_data, colWidths=col_widths)
+    
+    total_table = Table(total_table_data, colWidths=[doc.width*0.8, doc.width*0.2])
     total_table.setStyle(TableStyle([
-        ('BACKGROUND', (2, 0), (3, 0), secondary_color),
-        ('TEXTCOLOR', (2, 0), (3, 0), brand_color),
-        ('ALIGN', (2, 0), (3, 0), 'RIGHT'),
-        ('FONTNAME', (2, 0), (3, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (2, 0), (3, 0), 10),
+        ('BACKGROUND', (0, 0), (-1, -1), secondary_color),
+        ('TEXTCOLOR', (0, 0), (-1, -1), brand_color),
+        ('ALIGN', (0, 0), (0, 0), 'RIGHT'),
+        ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 11),
         ('TOPPADDING', (0, 0), (-1, -1), 8),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('BOX', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('RIGHTPADDING', (1, 0), (1, 0), 10),
     ]))
     elements.append(total_table)
-    elements.append(Spacer(1, 15))
+    elements.append(Spacer(1, 5))
     
-    # Payment information and terms in a bottom section
-    payment_terms = [
-        [
-            Table([
-                [Paragraph("<b>PAYMENT INFORMATION</b>", section_title_style)],
-                [Paragraph(f"Payment Method: {payment.payment_type}", normal_style)],
-                [Paragraph(f"Payment Status: {payment.status}", normal_style)]
-            ]),
-            Table([
-                [Paragraph("<b>TERMS & CONDITIONS</b>", section_title_style)],
-                [Paragraph("This is a computer-generated invoice.", normal_style)],
-                [Paragraph("No signature required.", normal_style)]
-            ])
-        ]
-    ]
-    footer_table = Table(payment_terms, colWidths=[doc.width/2, doc.width/2])
-    footer_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+    # Rupees in words
+    amount_words = num2words(int(total_amount), lang='en_IN').title()
+    words_data = [[f'Rupees in words: {amount_words} Rupees Only']]
+
+    words_table = Table(words_data, colWidths=[doc.width])
+    words_table.setStyle(TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('TOPPADDING', (0, 0), (-1, -1), 0),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('TOPPADDING', (0, 0), (-1, -1), 3),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
     ]))
-    elements.append(footer_table)
-    
-    # Add final colored separator line
+    elements.append(words_table)
     elements.append(Spacer(1, 15))
-    elements.append(separator)
     
-    # Final footer note
-    elements.append(Spacer(1, 10))
-    support_note = Paragraph("For any queries, please contact our support team at support@fourthdimension.com", 
-                            normal_style)
-    elements.append(support_note)
+    # Signature area
+    signature_data = [
+        ['', 'For Fourth Dimension Media Solutions (P) Ltd'],
+        ['', ''],
+        ['', 'Authorised Signatory']
+    ]
+    
+    signature_table = Table(signature_data, colWidths=[doc.width*0.6, doc.width*0.4])
+    signature_table.setStyle(TableStyle([
+        ('ALIGN', (1, 0), (1, -1), 'CENTER'),
+        ('FONTNAME', (1, 0), (1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (1, 0), (1, -1), 9),
+    ]))
+    elements.append(signature_table)
+    elements.append(Spacer(1, 15))
+    
+    # Terms & Conditions and Bank Details
+    terms_conditions = [
+        [Paragraph("<b>Terms & Condition</b>", section_title_style)],
+        [Paragraph("• All disputes are subject to Chennai Jurisdiction only", normal_style)],
+        [Paragraph('• Kindly Make all payments favoring "Fourth Dimension Media Solutions Pvt Ltd"', normal_style)],
+        [Paragraph("• Payment terms: Immediate", normal_style)],
+        [Paragraph("• Bank Name: City Union Bank., Tambaram West, Chennai -45", normal_style)],
+        [Paragraph("  Account No: 512120020019966", normal_style)],
+        [Paragraph("  Account Type: OD", normal_style)],
+        [Paragraph("  IFSC Code: CIUB0000117", normal_style)]
+    ]
+    
+    terms_table = Table(terms_conditions, colWidths=[doc.width])
+    terms_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('TOPPADDING', (0, 0), (-1, -1), 1),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
+        ('FONTSIZE', (0, 1), (-1, -1), 7),  # Smaller font for terms
+    ]))
+    elements.append(terms_table)
     
     # Build PDF
     doc.build(elements)
@@ -1183,8 +1198,7 @@ def subscription_details(subscription_id):
             daily_usage[date_key] += 1
     
     # Sort daily usage by date
-    sorted_daily_usage = [(k, v) for k, v in sorted(daily_usage.items())]
-    
+    sorted_daily_usage = [(k, v) for k, v in sorted(daily_usage.items())]    
     return render_template(
         'user/subscription_details.html',
         subscription=subscription[0],

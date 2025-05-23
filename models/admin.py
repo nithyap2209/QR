@@ -204,7 +204,7 @@ def create_super_admin():
         
         print("Super admin created successfully!")
         print(f"Email: {super_admin_email}")
-        print(f"Password: Good@1234")
+        print(f"Password: Nithya@22092001")
         
         return super_admin
 
@@ -225,7 +225,7 @@ def admin_dashboard():
         
         # Create a custom RecentPayment class to match template expectations
         class RecentPayment:
-            def __init__(self, user, subscription, payment):
+            def _init_(self, user, subscription, payment):
                 self.user = user
                 self.subscription = subscription
                 self.payment = payment
@@ -443,30 +443,7 @@ def admin_dashboard():
                               auto_renewal_count=0,
                               non_renewal_count=0,
                               payment_types=[])
-    
-@admin_bp.route('/subscribed-users/send-reminder/<int:id>', methods=['POST'])
-@admin_required
-def admin_send_renewal_reminder(id):
-    """Send a renewal reminder to a subscribed user"""
-    subscribed_user = SubscribedUser.query.get_or_404(id)
-    user = User.query.get(subscribed_user.U_ID)
-    subscription = Subscription.query.get(subscribed_user.S_ID)
 
-    try:
-        # Here you would typically implement email sending logic
-        # For now, we'll just simulate it with a success message
-        
-        # Record that reminder was sent
-        subscribed_user.last_reminder_sent = datetime.now(UTC)
-        db.session.commit()
-
-        flash(f'Renewal reminder sent to {user.name} for {subscription.plan} subscription.', 'success')
-    except Exception as e:
-        current_app.logger.error(f"Error sending renewal reminder: {str(e)}")
-        flash('Error sending renewal reminder. Please try again.', 'danger')
-
-    # Redirect back to the previous page
-    return redirect(request.referrer or url_for('admin.admin_subscribed_users'))
 #-------------------------
 # Admin login and logout
 #-------------------------
@@ -703,8 +680,7 @@ def admin_new_subscription():
         new_subscription = Subscription(
             plan=plan,
             price=price,
-            days=days,
-            usage_per_day=analytics,  # Use analytics value for backward compatibility
+            days=days, # Use analytics value for backward compatibility
             tier=tier,
             features=features,
             plan_type=plan_type,
@@ -766,11 +742,6 @@ def admin_edit_subscription(id):
         subscription.tier = tier
         subscription.features = features
         subscription.plan_type = plan_type
-        
-        # Update usage_per_day based on analytics
-        subscription.usage_per_day = analytics
-        
-        # Update new fields
         subscription.design = design
         subscription.analytics = analytics
         subscription.qr_count = qr_count
@@ -905,14 +876,14 @@ def admin_subscribed_users():
         else:
             end_date = sub_user.end_date
         return end_date > now
-    
     return render_template('admin/subscribed_users.html', 
-                          subscribed_users=subscribed_users,
-                          all_plans=all_plans,
-                          status_filter=status_filter,
-                          plan_filter=plan_filter,
-                          now=now,
-                          is_active=is_active)
+                        subscribed_users=subscribed_users,
+                        all_plans=all_plans,
+                        status_filter=status_filter,
+                        plan_filter=plan_filter,
+                        now=now,
+                        is_active=is_active,
+                        hasattr=hasattr)  # Add hasattr to the template context
 
 @admin_bp.route('/subscribed-users/new', methods=['GET', 'POST'])
 def admin_new_subscribed_user():
@@ -1292,6 +1263,7 @@ def admin_user_details(user_id):
                           user_qr_codes=user_qr_codes,
                           subscription_plans=subscription_plans,
                           now=now)
+
 @admin_bp.route('/remove_user/<int:user_id>', methods=['POST'])
 def remove_user(user_id):
     """

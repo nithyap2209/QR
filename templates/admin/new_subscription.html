@@ -25,7 +25,6 @@
         </div>
         <div class="card-body">
             <form action="{{ url_for('admin.admin_new_subscription') }}" method="POST">
-                <!-- Hidden field for usage_per_day to satisfy NOT NULL constraint -->
                 <div class="row">
                     <div class="col-md-6 mb-4">
                         <label for="plan" class="form-label">
@@ -139,13 +138,6 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Auto-update hidden usage_per_day field when analytics changes
-        const analyticsInput = document.getElementById('analytics');
-        const usagePerDayInput = document.getElementById('usage_per_day');
-        
-        analyticsInput.addEventListener('input', function() {
-            usagePerDayInput.value = this.value;
-        });
         
         // Add fade-in effect to the card
         const card = document.querySelector('.card');

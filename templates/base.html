@@ -602,8 +602,6 @@
             border-radius: 9999px;
             transition: width 0.5s ease;
         }
-
-        
     </style>
     
     {% block head %}{% endblock %}
@@ -703,18 +701,16 @@
                         <a href="{{ url_for('login') }}" class="btn btn-outline focus-ring">Login</a>
                         <a href="{{ url_for('signup') }}" class="btn btn-gradient focus-ring">Sign Up</a>
                     {% endif %} 
-                    </div> 
+                    </div>
                     
-                     
-            
-                <!-- Mobile Menu Button  -->
-                     <button type="button" id="mobile-menu-button" class="sm:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-secondary-700 hover:bg-gray-100 focus-ring" aria-controls="mobile-menu" aria-expanded="false"> 
+                    <!-- Mobile Menu Button -->
+                    <button type="button" id="mobile-menu-button" class="sm:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-secondary-700 hover:bg-gray-100 focus-ring" aria-controls="mobile-menu" aria-expanded="false">
                         <span class="sr-only">Open main menu</span>
                         <i class="fas fa-bars"></i>
                     </button>
                 </div>
             </div>
-        </div> 
+        </div>
 
         <!-- Mobile Menu -->
         <div class="mobile-menu sm:hidden" id="mobile-menu">
@@ -738,6 +734,51 @@
             </div>
         </div>
     </header>
+
+    <!-- Subscription Status Indicator (NEW) -->
+    {% if current_user.is_authenticated %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+        {% if has_subscription %}
+        <div class="bg-white shadow-sm rounded-lg p-3 border border-gray-200 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="h-10 w-10 bg-secondary-100 rounded-full flex items-center justify-center text-secondary-700">
+                    <i class="fas fa-crown text-lg"></i>
+                </div>
+                <div>
+                    <span class="text-sm text-gray-600">{{ plan_name }} Plan</span>
+                    <div class="flex space-x-4 text-xs text-gray-500">
+                        <span>QR Codes: {{ qr_remaining }}/{{ qr_limit }}</span>
+                        {% if analytics_remaining is defined %}
+                        <span>Analytics: {{ analytics_remaining }} remaining</span>
+                        {% endif %}
+                        <span>Expires: {{ expires_on|date('%b %d, %Y') if expires_on else 'Unknown' }}</span>
+                    </div>
+                </div>
+            </div>
+            <a href="{{ url_for('subscription.user_subscriptions') }}" class="text-sm text-secondary-600 hover:text-secondary-800 font-medium">
+                Manage Subscription
+            </a>
+        </div>
+        {% else %}
+        <div class="bg-gray-50 shadow-sm rounded-lg p-3 border border-gray-200 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500">
+                    <i class="fas fa-crown text-lg"></i>
+                </div>
+                <div>
+                    <span class="text-sm text-gray-600">No Active Subscription</span>
+                    <div class="text-xs text-gray-500">
+                        <span>Subscribe to create more QR codes and access analytics</span>
+                    </div>
+                </div>
+            </div>
+            <a href="{{ url_for('subscription.user_subscriptions') }}" class="btn btn-sm btn-gradient">
+                Subscribe Now
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
 
     <!-- Main Content with improved aesthetics -->
     <main class="main-content flex-grow fade-in">
