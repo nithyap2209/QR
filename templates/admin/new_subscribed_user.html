@@ -1,0 +1,92 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Add New User Subscription{% endblock %}
+
+{% block page_title %}Add New User Subscription{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('admin.admin_subscribed_users') }}">Subscribed Users</a></li>
+<li class="breadcrumb-item active">Add New</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="row">
+        <div class="col-lg-8 col-md-12 mx-auto">
+            <div class="card">
+                <div class="card-header d-flex align-items-center">
+                    <i class="fas fa-plus-circle me-2"></i> New Subscription Details
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('admin.admin_new_subscribed_user') }}" method="POST">
+                        <div class="mb-4">
+                            <label for="user_id" class="form-label">
+                                <i class="fas fa-user me-2 text-primary"></i>User
+                            </label>
+                            <select class="form-select" id="user_id" name="user_id" required>
+                                <option value="">Select a user</option>
+                                {% for user in users %}
+                                <option value="{{ user.id }}">{{ user.name }} ({{ user.email }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="subscription_id" class="form-label">
+                                <i class="fas fa-tag me-2 text-primary"></i>Subscription Plan
+                            </label>
+                            <select class="form-select" id="subscription_id" name="subscription_id" required>
+                                <option value="">Select a plan</option>
+                                {% for subscription in subscriptions %}
+                                <option value="{{ subscription.S_ID }}">{{ subscription.plan }} - ₹{{ subscription.price }} ({{ subscription.days }} days)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('admin.admin_subscribed_users') }}" class="btn btn-outline-secondary me-md-2">
+                                <i class="fas fa-times me-1"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> Add Subscription
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add animation to the card
+        const card = document.querySelector('.card');
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, 100);
+        
+        // Add select2 for better dropdowns if available
+        if (typeof $.fn.select2 !== 'undefined') {
+            $('#user_id').select2({
+                placeholder: 'Select a user',
+                allowClear: true,
+                width: '100%'
+            });
+            
+            $('#subscription_id').select2({
+                placeholder: 'Select a plan',
+                allowClear: true,
+                width: '100%'
+            });
+        }
+    });
+</script>
+{% endblock %}
